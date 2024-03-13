@@ -38,8 +38,7 @@ rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 -> FEN for starting position
 
 ## TODO
--[] create chessboard and pieces
--[] Load positions with FEN
--[] Drag and drop
+-[] chessboard state
+-[x] Load positions with FEN
 -[] Valid Moves
 
