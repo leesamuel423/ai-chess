@@ -37,6 +37,9 @@ ie:
 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 -> FEN for starting position
 
+## (chess.svg)[https://python-chess.readthedocs.io/en/latest/svg.html]
+
+
 ## TODO
 -[] chessboard state
 -[x] Load positions with FEN
