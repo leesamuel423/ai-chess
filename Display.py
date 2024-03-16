@@ -1,12 +1,9 @@
 import chess
 import chess.svg
-import sys
 
-from PyQt6.QtWidgets import QApplication, QWidget
+from PyQt6.QtWidgets import QWidget
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtGui import QShortcut, QKeySequence
-
-print("in Display")
 
 class Display(QWidget):
     def __init__(self):
@@ -29,15 +26,3 @@ class Display(QWidget):
         self.shortcut_close = QShortcut(QKeySequence('Ctrl+W'), self)
         self.shortcut_close.activated.connect(self.close)
 
-
-
-board = chess.Board()
-
-if __name__ == "__main__":
-    app = QApplication([])
-    window = Display()
-    chessboardSvg = chess.svg.board(board, flipped = True).encode("UTF-8")
-    window.widgetSvg.load(chessboardSvg)
-    window.show()
-    app.processEvents()
-    sys.exit(app.exec())
