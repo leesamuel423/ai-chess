@@ -26,7 +26,7 @@ def test_close_shortcut(display_widget, qtbot):
     """
     # The widget should initially be visible
     assert display_widget.isVisible() == True
-    
+
     # Simulate pressing Ctrl+W
     QTest.keyPress(display_widget, Qt.Key.Key_W, Qt.KeyboardModifier.ControlModifier)
 
@@ -35,3 +35,16 @@ def test_close_shortcut(display_widget, qtbot):
 
     # Verify the widget is no longer visible, indicating it has been closed
     assert display_widget.isVisible() == False
+
+def test_minimize_shortcut(display_widget, qtbot):
+    """
+    Test that the Display widget minimizes when the Ctrl+M shortcut is used.
+    """
+    assert display_widget.isVisible() == True
+    QTest.keyPress(display_widget, Qt.Key.Key_M, Qt.KeyboardModifier.ControlModifier)
+
+    # Process events to ensure the UI responds to the shortcut
+    QApplication.processEvents()
+
+    # Verify the widget is minimized
+    assert display_widget.isMinimized() == True

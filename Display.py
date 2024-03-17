@@ -1,7 +1,6 @@
-import chess
 import chess.svg
 
-from PyQt6.QtWidgets import QWidget, QLineEdit
+from PyQt6.QtWidgets import QWidget
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtGui import QShortcut, QKeySequence
 
@@ -23,9 +22,11 @@ class Display(QWidget):
     def shortcuts(self):
         '''Shortcuts for Window
         <Ctrl + W> close window
+        <Ctrl + M> minimize window
         '''
         # close window
         self.shortcut_close = QShortcut(QKeySequence('Ctrl+W'), self)
         self.shortcut_close.activated.connect(self.close)
 
-
+        self.shortcut_minimize = QShortcut(QKeySequence('Ctrl+M'), self)
+        self.shortcut_minimize.activated.connect(self.showMinimized)
