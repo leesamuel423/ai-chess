@@ -41,7 +41,8 @@ rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
 
 ## TODO
--[] chessboard state
 -[x] Load positions with FEN
 -[] Valid Moves
+-[] user interaction with gui
+
 

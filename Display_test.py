@@ -1,5 +1,4 @@
 import pytest
-import sys
 
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
@@ -8,14 +7,11 @@ from PyQt6.QtTest import QTest
 from Display import *
 
 
-# Initialize a single QApplication instance for all tests
-@pytest.fixture(scope='session')
-def qapplication():
-    return QApplication(sys.argv)
-
 @pytest.fixture
 def display_widget():
-    """Fixture to create and return a Display widget."""
+    """
+    Fixture to create and return a Display widget.
+    """
     widget = Display()
     widget.show()  # Necessary to test certain UI interactions
     return widget

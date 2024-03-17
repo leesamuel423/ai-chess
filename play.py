@@ -25,13 +25,18 @@ def main():
     except:
         board = chess.Board()
 
-
+    # Initialize QApplication (required for PyQt apps)
     app = QApplication([])
+    # Convert chess board into SVG and encode it to UTF-8 for displaying
     chessboardSvg = chess.svg.board(board, flipped = starting_color).encode("UTF-8")
+    # Create Display window instance
     window = Display()
     window.widgetSvg.load(chessboardSvg)
     window.show()
+    # Process any pending events for app
     app.processEvents()
+
+    # Execute app and exit window when user closes window
     sys.exit(app.exec())
 
 
