@@ -3,7 +3,7 @@ from unittest.mock import patch
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
 from PyQt6.QtTest import QTest
-from DisplayWindow import DisplayWindow
+from GameBoard import GameBoard
 
 @pytest.fixture
 def display_widget(request):
@@ -13,7 +13,7 @@ def display_widget(request):
     """
     input_values = request.param
     with patch('builtins.input', side_effect=input_values):
-        widget = DisplayWindow()
+        widget = GameBoard()
         widget.show()
         yield widget
 
@@ -75,3 +75,42 @@ def test_minimize_shortcut(display_widget, qtbot):
     QTest.keyPress(display_widget, Qt.Key.Key_M, Qt.KeyboardModifier.ControlModifier)
     QApplication.processEvents()
     assert display_widget.isMinimized() == True
+
+@pytest.mark.parametrize('display_widget', [(['', ''])], indirect=True)
+def test_undo_move(display_widget, qtbot):
+    """
+    Test that undoing a move updates the board correctly.
+    """
+    # Simulate a few moves
+    display_widget.board.push_san("e4")
+    display_widget.board.push_san("e5")
+    # Undo last move
+    display_widget.undoMove()
+    assert display_widget.board.fen().startswith("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "Undo should revert to the state before the last move."
+
+
+@pytest.mark.parametrize('display_widget', [(['', ''])], indirect=True)
+def test_redo_move(display_widget, qtbot):
+    """
+    Test that redoing a move updates the board correctly after an undo.
+    """
+    # Simulate a move and undo it
+    display_widget.board.push_san("e4")
+    initial_fen = display_widget.board.fen()
+    display_widget.undoMove()
+    # Redo the move
+    display_widget.redoMove()
+    assert display_widget.board.fen() == initial_fen, "Redo should restore the board to the state before the undo."
+
+
+@pytest.mark.parametrize('display_widget', [(['', ''])], indirect=True)
+def test_checkmate_display(display_widget, qtbot):
+    """
+    Test that the game outcome label updates to show checkmate correctly.
+    """
+    # Set up a checkmate position manually
+    display_widget.board.set_fen("7k/5QPP/8/8/8/8/8/7K w - - 0 1")
+    display_widget.board.push_san("g8=Q#")
+    display_widget.drawBoard()
+    assert "Checkmate" in display_widget.turnLabel.text(), "Game outcome label should indicate checkmate."
+
