@@ -3,7 +3,7 @@ import chess.svg
 
 from PyQt6.QtWidgets import QWidget, QLabel, QMessageBox
 from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtGui import QShortcut, QKeySequence
+from PyQt6.QtGui import QShortcut, QKeySequence, QClipboard
 from PyQt6.QtCore import Qt
 
 class GameBoard(QWidget):
@@ -42,8 +42,11 @@ class GameBoard(QWidget):
     def setupUI(self):
         """Set up the UI components including labels and shortcuts"""
         # UI for game status
-        self.turnLabel = QLabel("Turn: White", parent=self) # display which player turn it is
+        self.turnLabel = QLabel("Turn: ", parent=self) # display which player turn it is
         self.turnLabel.setGeometry(720, 10, 200, 30)
+        self.FENLabel = QLabel("FEN:\n\nrnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", parent=self) # display which player turn it is
+        self.FENLabel.setGeometry(100, 750, 500, 50)
+        self.FENLabel.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.shortcuts() # keyboard shortcuts
 
 
@@ -75,13 +78,18 @@ class GameBoard(QWidget):
         self.widgetSvg.load(self.chessboardSvg)
 
         self.updateTurnLabel()
+        self.updateFENLabel()
         self.checkGameEnd()
 
     def updateTurnLabel(self):
         """Update the label indicating whose turn it is"""
-        # Update turn label
         turn_text = "Turn: " + ("Black" if self.board.turn == chess.BLACK else "White")
         self.turnLabel.setText(turn_text)
+
+    def updateFENLabel(self):
+        """Update FEN label for current position"""
+        FEN_text = "FEN:\n\n" + self.board.fen()
+        self.FENLabel.setText(FEN_text)
 
 
     def checkGameEnd(self):

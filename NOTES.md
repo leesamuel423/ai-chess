@@ -29,6 +29,7 @@
 - [x] check to see if game ends and show who won
     - [ ] new game option
 - [x] show whose turn it is
+- [x] show FEN
 
 - [ ] Look into alpha-beta pruning algorithm
 - [ ] Create Board heuristics
