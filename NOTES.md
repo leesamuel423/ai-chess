@@ -20,12 +20,12 @@
 - [x] Load positions with FEN
 - [x] Set orientations
 - [x] Move QApplication code to display as well???
-- [ ] make chessboard scale with window
 - [x] user interaction with gui to move pieces
 - [x] FIX:when orientation flipped for black, user input does not also reverse
 - [x] user move validation
 - [x] indicators to show valid moves
     - [x] check whether indicators show edge cases (EnPassant, Castle, Promotion)
+- [ ] Address pawn promotion
 - [x] check to see if game ends and show who won
     - [ ] new game option
 - [x] show whose turn it is

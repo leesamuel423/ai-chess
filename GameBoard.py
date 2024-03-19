@@ -15,6 +15,20 @@ class GameBoard(QWidget):
         self.setWindowTitle("Chess")
         self.setGeometry(0, 0, 1000, 1000)
 
+        self.setupBoard()
+        self.setupUI()
+        # Variables for Tracking Game State
+        self.pieceToMove = [None, None] # track piece selected for moving
+        self.starting_color = self.startingSide() # starting color
+        self.board = self.startingFEN() # starting FEN
+        self.lastMove = None # last move made
+        self.possibleMoves = [] # possible moves for selected piece
+        self.redoStack = [] # stack to hold moves for redo
+
+        self.drawBoard() # chess board visualization
+
+    def setupBoard(self):
+        """Set up the chess board display using SVG widget"""
         # Chess board display setup
         self.widgetSvg = QSvgWidget(parent = self)
         self.widgetSvg.setGeometry(10, 10, 700, 700)
@@ -25,20 +39,11 @@ class GameBoard(QWidget):
         self.margin = 0.05 * self.boardSize if self.coordinates else 0
         self.squareSize = (self.boardSize - 2 * self.margin) / 8.0 # size of each board square
 
-        # Variables for Tracking Game State
-        self.pieceToMove = [None, None] # track piece selected for moving
-        self.starting_color = self.startingSide() # starting color
-        self.board = self.startingFEN() # starting FEN
-        self.lastMove = None # last move made
-        self.possibleMoves = [] # possible moves for selected piece
-        self.redoStack = [] # stack to hold moves for redo
-
+    def setupUI(self):
+        """Set up the UI components including labels and shortcuts"""
         # UI for game status
         self.turnLabel = QLabel("Turn: White", parent=self) # display which player turn it is
         self.turnLabel.setGeometry(720, 10, 200, 30)
-
-
-        self.drawBoard() # ches board visualization
         self.shortcuts() # keyboard shortcuts
 
 
@@ -58,18 +63,26 @@ class GameBoard(QWidget):
         except:
             return chess.Board()
 
+
     def drawBoard(self):
         """Draw chess board w/ current game state and check for game end"""
         self.chessboardSvg = chess.svg.board(self.board, 
-                                             lastmove=self.lastMove,
-                                             squares = self.possibleMoves,
-                                             flipped = self.starting_color).encode("UTF-8")
+            lastmove=self.lastMove,
+            squares = self.possibleMoves,
+            flipped = self.starting_color
+        ).encode("UTF-8")
+        
         self.widgetSvg.load(self.chessboardSvg)
+
+        self.updateTurnLabel()
+        self.checkGameEnd()
+
+    def updateTurnLabel(self):
+        """Update the label indicating whose turn it is"""
         # Update turn label
         turn_text = "Turn: " + ("Black" if self.board.turn == chess.BLACK else "White")
         self.turnLabel.setText(turn_text)
-        # Check if game has ended
-        self.checkGameEnd()
+
 
     def checkGameEnd(self):
         """Check for game-ending conditions and display a message if the game has ended."""
@@ -87,6 +100,31 @@ class GameBoard(QWidget):
         elif self.board.is_variant_draw():
             self.turnLabel.setText("Game Over!" + "\nDraw due to variant-specific reason.")
 
+    def pawnPromotion(self):
+        dialog = QMessageBox(self)
+        dialog.setWindowTitle("Pawn Promotion")
+        dialog.setText("Choose piece for promotion: ")
+
+        # Custom buttons for each promotion choice
+        queenButton = dialog.addButton("Queen", QMessageBox.ButtonRole.YesRole)
+        rookButton = dialog.addButton("Rook", QMessageBox.ButtonRole.YesRole)
+        bishopButton = dialog.addButton("Bishop", QMessageBox.ButtonRole.YesRole)
+        knightButton = dialog.addButton("Knight", QMessageBox.ButtonRole.YesRole)
+
+        dialog.exec()
+
+        # Return the chosen piece
+        if dialog.clickedButton() == queenButton:
+            return chess.QUEEN
+        elif dialog.clickedButton() == rookButton:
+            return chess.ROOK
+        elif dialog.clickedButton() == bishopButton:
+            return chess.BISHOP
+        elif dialog.clickedButton() == knightButton:
+            return chess.KNIGHT
+        else:
+            return chess.QUEEN  # Default to queen
+        
     
     def shortcuts(self):
         """Keyboard shortcuts for window operations
@@ -138,8 +176,15 @@ class GameBoard(QWidget):
             if self.pieceToMove[1] is not None:
                 # Check if current click is in a different square than initial position
                 if self.pieceToMove[1] != coordinates:
+
                     # Create move in UCI format
                     move = chess.Move.from_uci(f"{self.pieceToMove[1]}{coordinates}")
+
+                    #Check for pawn promotion
+                    if (self.board.piece_at(move.from_square).piece_type == chess.PAWN and (move.to_square >= chess.A8 or move.to_square <= chess.H1)):
+                        promotion_choice = self.pawnPromotion()  # Prompt for pawn promotion
+                        move = chess.Move(move.from_square, move.to_square, promotion=promotion_choice)
+
                     # If move is valid...
                     if move in self.board.legal_moves:
                         self.board.push(move) # make move on board
