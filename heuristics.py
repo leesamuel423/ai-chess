@@ -1,23 +1,19 @@
-"""
-HEURISTICS
-# Material Heuristics based off [SebLague](https://github.com/SebLague/Chess-Coding-Adventure/blob/Chess-V2-UCI/Chess-Coding-Adventure/src/Core/Evaluation/PieceSquareTable.cs)
-"""
+import chess
 
-def materialHeuristics():
-    # material heuristics from white perspective
-
-    pawns = {
+# Material heuristics for pieces from White perspective
+# Values used to evaluate position of pieces on board
+materialHeuristics = {
+    "pawns": [
         0,   0,   0,   0,   0,   0,   0,   0,
         50,  50,  50,  50,  50,  50,  50,  50,
         10,  10,  20,  30,  30,  20,  10,  10,
-        5,   5,  10,  25,  25,  10,   5,   5,
-        0,   0,   0,  20,  20,   0,   0,   0,
+        5,   5,  10,  250,  250,  10,   5,   5,
+        0,   0,   100,  200,  200,  100,   0,   0,
         5,  -5, -10,   0,   0, -10,  -5,   5,
-        5,  10,  10, -20, -20,  10,  10,   5,
+        5,  10,  10, -200, -200,  10,  10,   5,
         0,   0,   0,   0,   0,   0,   0,   0
-    }
-
-    pawnsEnd = {
+    ],
+    "pawnsEnd": [
         0,   0,   0,   0,   0,   0,   0,   0,
         80,  80,  80,  80,  80,  80,  80,  80,
         50,  50,  50,  50,  50,  50,  50,  50,
@@ -26,9 +22,8 @@ def materialHeuristics():
         10,  10,  10,  10,  10,  10,  10,  10,
         10,  10,  10,  10,  10,  10,  10,  10,
         0,   0,   0,   0,   0,   0,   0,   0
-    }
-
-    rooks =  {
+    ],
+    "rooks": [
         0,  0,  0,  0,  0,  0,  0,  0,
         5, 10, 10, 10, 10, 10, 10,  5,
         -5,  0,  0,  0,  0,  0,  0, -5,
@@ -37,20 +32,18 @@ def materialHeuristics():
         -5,  0,  0,  0,  0,  0,  0, -5,
         -5,  0,  0,  0,  0,  0,  0, -5,
         0,  0,  0,  5,  5,  0,  0,  0
-    }
-
-    knights = {
+    ],
+    "knights": [
         -50,-40,-30,-30,-30,-30,-40,-50,
         -40,-20,  0,  0,  0,  0,-20,-40,
         -30,  0, 10, 15, 15, 10,  0,-30,
-        -30,  5, 15, 20, 20, 15,  5,-30,
-        -30,  0, 15, 20, 20, 15,  0,-30,
+        -30,  5, 15, 10, 10, 15,  5,-30,
+        -30,  0, 10, 20, 20, 10,  0,-30,
         -30,  5, 10, 15, 15, 10,  5,-30,
         -40,-20,  0,  5,  5,  0,-20,-40,
         -50,-40,-30,-30,-30,-30,-40,-50,
-    }
-
-    bishops =  {
+    ],
+    "bishops": [
         -20,-10,-10,-10,-10,-10,-10,-20,
         -10,  0,  0,  0,  0,  0,  0,-10,
         -10,  0,  5, 10, 10,  5,  0,-10,
@@ -59,9 +52,8 @@ def materialHeuristics():
         -10, 10, 10, 10, 10, 10, 10,-10,
         -10,  5,  0,  0,  0,  0,  5,-10,
         -20,-10,-10,-10,-10,-10,-10,-20,
-    }
-
-    queens =  {
+    ],
+    "queen": [
         -20,-10,-10, -5, -5,-10,-10,-20,
         -10,  0,  0,  0,  0,  0,  0,-10,
         -10,  0,  5,  5,  5,  5,  0,-10,
@@ -70,9 +62,8 @@ def materialHeuristics():
         -10,  5,  5,  5,  5,  5,  0,-10,
         -10,  0,  5,  0,  0,  0,  0,-10,
         -20,-10,-10, -5, -5,-10,-10,-20
-    }
-
-    kingStart = {
+    ],
+    "kingStart": [
         -80, -70, -70, -70, -70, -70, -70, -80, 
         -60, -60, -60, -60, -60, -60, -60, -60, 
         -40, -50, -50, -60, -60, -50, -50, -40, 
@@ -81,9 +72,8 @@ def materialHeuristics():
         -10, -20, -20, -20, -20, -20, -20, -10, 
         20,  20,  -5,  -5,  -5,  -5,  20,  20, 
         20,  30,  10,   0,   0,  10,  30,  20
-    }
-
-    kingEnd = {
+    ],
+    "kingEnd": [
         -20, -10, -10, -10, -10, -10, -10, -20,
         -5,   0,   5,   5,   5,   5,   0,  -5,
         -10, -5,   20,  30,  30,  20,  -5, -10,
@@ -92,5 +82,33 @@ def materialHeuristics():
         -25, -20,  20,  25,  25,  20, -20, -25,
         -30, -25,   0,   0,   0,   0, -25, -30,
         -50, -30, -30, -30, -30, -30, -30, -50
-    }
+    ],
+}
+
+# Material values representing importance of each piece type
+material_values = {
+    chess.PAWN: 100,
+    chess.ROOK: 500,
+    chess.KNIGHT: 300,
+    chess.BISHOP: 310,
+    chess.QUEEN: 900,
+}
+
+def mobility_score(board):
+    """
+    Calculates mobility score of board by counting legal moves available.
+
+    @param board: current board state
+    @return: count of legal moves available
+    """
+    return len(list(board.legal_moves))
+
+def endgame_check(board):
+    """
+    Determines if the current board state is in endgame (less than 12 pieces on board)
+
+    @param board: current board state
+    @return: True if in endgame phase, False otherwise.
+    """
+    return len(board.piece_map()) < 12
 

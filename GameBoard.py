@@ -1,15 +1,18 @@
 import chess
 import chess.svg
 
+from ChessAI import *
 from PyQt6.QtWidgets import QWidget, QLabel, QMessageBox
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtGui import QShortcut, QKeySequence, QClipboard
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 
 class GameBoard(QWidget):
 
     def __init__(self):
-        """Initialize chess game board and UI components"""
+        """
+        Initialize chess game board and UI components and AI
+        """
         super().__init__() # call initializer of base class QWidget to setup window correctly
 
         self.setWindowTitle("Chess")
@@ -17,6 +20,7 @@ class GameBoard(QWidget):
 
         self.setupBoard()
         self.setupUI()
+
         # Variables for Tracking Game State
         self.pieceToMove = [None, None] # track piece selected for moving
         self.starting_color = self.startingSide() # starting color
@@ -25,10 +29,19 @@ class GameBoard(QWidget):
         self.possibleMoves = [] # possible moves for selected piece
         self.redoStack = [] # stack to hold moves for redo
 
+
+        # Initialize AI settings
+        self.aiColor = chess.BLACK if not self.starting_color else chess.WHITE
+        self.ai = ChessAI(3, self.aiColor)
+        self.isAIEnabled = True # turn off for human v human
+        self.checkAndMakeAIMove() # check and make AI move
+
         self.drawBoard() # chess board visualization
 
     def setupBoard(self):
-        """Set up the chess board display using SVG widget"""
+        """
+        Set up the chess board display using SVG widget
+        """
         # Chess board display setup
         self.widgetSvg = QSvgWidget(parent = self)
         self.widgetSvg.setGeometry(10, 10, 700, 700)
@@ -40,7 +53,9 @@ class GameBoard(QWidget):
         self.squareSize = (self.boardSize - 2 * self.margin) / 8.0 # size of each board square
 
     def setupUI(self):
-        """Set up the UI components including labels and shortcuts"""
+        """
+        Set up the UI components including labels and shortcuts
+        """
         # UI for game status
         self.turnLabel = QLabel("Turn: ", parent=self) # display which player turn it is
         self.turnLabel.setGeometry(720, 10, 200, 30)
@@ -51,13 +66,21 @@ class GameBoard(QWidget):
 
 
     def startingSide(self):
-        """Selection of starting color"""
+        """
+        Selection of starting color
+
+        @return: Boolean True if user chooses black, False if white/default
+        """
         starting_color = input('Select (W)hite or (B)lack: ')
         return True if starting_color and starting_color[0].lower() == "b" else False
         
 
     def startingFEN(self):
-        """Selection of starting FEN or default FEN"""
+        """
+        Selection of starting FEN or default FEN
+
+        @return: chess.Board instance initialized to specified FEN
+        """
         FEN = input('Press <Enter> to Begin or Input FEN: ')
 
         # Validation (FEN)
@@ -68,7 +91,9 @@ class GameBoard(QWidget):
 
 
     def drawBoard(self):
-        """Draw chess board w/ current game state and check for game end"""
+        """
+        Draw chess board w/ current game state and check for game end
+        """
         self.chessboardSvg = chess.svg.board(self.board, 
             lastmove=self.lastMove,
             squares = self.possibleMoves,
@@ -82,18 +107,24 @@ class GameBoard(QWidget):
         self.checkGameEnd()
 
     def updateTurnLabel(self):
-        """Update the label indicating whose turn it is"""
+        """
+        Update the label indicating whose turn it is
+        """
         turn_text = "Turn: " + ("Black" if self.board.turn == chess.BLACK else "White")
         self.turnLabel.setText(turn_text)
 
     def updateFENLabel(self):
-        """Update FEN label for current position"""
+        """
+        Update FEN label for current position
+        """
         FEN_text = "FEN:\n\n" + self.board.fen()
         self.FENLabel.setText(FEN_text)
 
 
     def checkGameEnd(self):
-        """Check for game-ending conditions and display a message if the game has ended."""
+        """
+        Check for game-ending conditions and display a message if the game has ended.
+        """
         if self.board.is_checkmate():
             winner = "Black" if self.board.turn == chess.WHITE else "White"
             self.turnLabel.setText("Game Over ... " + f"Checkmate!\n{winner} wins.")
@@ -109,6 +140,10 @@ class GameBoard(QWidget):
             self.turnLabel.setText("Game Over!" + "\nDraw due to variant-specific reason.")
 
     def pawnPromotion(self):
+        """
+        Handles pawn promotion by prompting the user to select a piece for promotion.
+        @return: chosen piece type for pawn promotion
+        """
         dialog = QMessageBox(self)
         dialog.setWindowTitle("Pawn Promotion")
         dialog.setText("Choose piece for promotion: ")
@@ -135,7 +170,8 @@ class GameBoard(QWidget):
         
     
     def shortcuts(self):
-        """Keyboard shortcuts for window operations
+        """
+        Keyboard shortcuts for window operations
         <Ctrl + W> close window
         <Ctrl + M> minimize window
         <Ctrl + Z> undo last move
@@ -158,7 +194,11 @@ class GameBoard(QWidget):
 
 
     def mousePressEvent(self, e):
-        """Handle mouse press events for selecting and moving chess pieces."""
+        """
+        Handle mouse press events for selecting and moving chess pieces.
+        
+        @param: event containing details of mouse press
+        """
         # Get positions of mouse click
         pos = e.position()
         x, y = pos.x(), pos.y()
@@ -218,10 +258,14 @@ class GameBoard(QWidget):
 
             # Redraw board to reflect changes
             self.drawBoard()
+            # AI Move
+            self.checkAndMakeAIMove()
 
 
     def undoMove(self):
-        """Undo last move and update game state"""
+        """
+        Undo last move and update game state
+        """
         if len(self.board.move_stack) > 0:
             # Add last move to redo stack before undoing it
             self.redoStack.append(self.board.pop())
@@ -249,3 +293,19 @@ class GameBoard(QWidget):
             # Redraw the board with the updated state
             self.drawBoard()
 
+    def checkAndMakeAIMove(self):
+        """
+        Checks if it's the AI's turn to move and initiates the AI move-making process.
+        """
+        if self.isAIEnabled and self.board.turn == self.aiColor:
+            QTimer.singleShot(100, self.makeAIMove)  # Delay AI move by 100 milliseconds (allows for user input to go through first)
+
+    def makeAIMove(self):
+        """
+        Executes the best move determined by the AI, updating the game state and UI.
+        """
+        if self.isAIEnabled and self.board.turn == self.aiColor:
+            best_move = self.ai.select_best_move(self.board)
+            if best_move:
+                self.board.push(best_move)
+                self.drawBoard()
