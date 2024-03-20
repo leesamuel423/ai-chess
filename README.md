@@ -16,7 +16,7 @@ Ensure you have Python 3.8+ and pip installed on your system. Follow these steps
 Make sure you have Python 3.8+ installed on your system. Clone the repository using the following command:
 ```bash
 git clone https://your-repository-link.git
-cd chess-game-with-ai
+cd ai-chess
 ```
 
 2. Create and Activate a Virtual Environment
