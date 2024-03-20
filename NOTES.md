@@ -40,11 +40,11 @@ considerations:
 - [x] user move validation
 - [x] indicators to show valid moves
     - [x] check whether indicators show edge cases (EnPassant, Castle, Promotion)
-- [ ] Address pawn promotion
+- [x] Address pawn promotion
 - [x] check to see if game ends and show who won
-    - [ ] new game option
 - [x] show whose turn it is
 - [x] show FEN
 
-- [ ] Look into alpha-beta pruning algorithm
-- [ ] Create Board heuristics
+- [x] Look into alpha-beta pruning algorithm
+- [x] Create Board heuristics
+
