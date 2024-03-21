@@ -11,77 +11,81 @@ class ChessAI:
         @param ai_color: color this AI will play as, chess.WHITE or chess.BLACK
         """
         self.depth = depth
-        self.material_heuristics = materialHeuristics
         self.color = ai_color
         self.last_piece_moved = None  # Track the last piece moved by the AI for potential future enhancements.
 
     def evaluate_board(self, board):
         """
-        Evaluates board's current state using material and positional heuristics.
+        Evaluates the board using material and positional heuristics.
 
         @param board: chess board to evaluate
         @return: numerical evaluation of board's state from the perspective of the AI's color. (+) favorable, (-) unfavorable
         """
-        # Check for terminal game states.
         if board.is_checkmate():
             return -9999 if board.turn else 9999
-        if board.is_stalemate() or board.is_insufficient_material():
+        if board.is_stalemate():
+            return 0
+        if board.is_insufficient_material():
             return 0
         
         eval = 0
-
         for square in chess.SQUARES:
             piece = board.piece_at(square)
             if piece:
-                # Evaluate each piece on board
                 piece_type = piece.piece_type
-                color = self.color
-                is_endgame = endgame_check(board)  # determine if the game is in the endgame phase.
-                key = self.get_piece_key(piece_type, is_endgame)  # get key for fetching heuristics.
-                value = self.get_position_value(key, square, color)  # get the piece's positional value.
-                eval += value if color == self.color else -value  # Adjust based on the AI's color.
+                color = piece.color
+                value = 0
+                
+                # Determine the piece's base value and position value
+                if piece_type == chess.PAWN:
+                    value = 100 + self.get_position_value(piece_type, square, color, board)
+                elif piece_type == chess.KNIGHT:
+                    value = 320 + self.get_position_value(piece_type, square, color, board)
+                elif piece_type == chess.BISHOP:
+                    value = 330 + self.get_position_value(piece_type, square, color, board) 
+                elif piece_type == chess.ROOK: 
+                    value = 500 + self.get_position_value(piece_type, square, color, board)
+                elif piece_type == chess.QUEEN:
+                    value = 900 + self.get_position_value(piece_type, square, color, board)
+                elif piece_type == chess.KING:
+                    value = 20000 + self.get_position_value(piece_type, square, color, board)
 
-        # Evalulation based on mobility
+                # Adjust the score based on the piece's color
+                eval += value if color == self.color else -value
+
         mobility = mobility_score(board)
         eval += mobility if board.turn == self.color else -mobility
 
         return eval
 
-    def get_position_value(self, piece_type, square, color):
+    def get_position_value(self, piece_type, square, color, board):
         """
-        Retrieves position value of piece based on its type and square.
-
+        Returns the position value of a piece based on its type and square.
         @param piece_type: type of the chess piece
         @param square: square where the piece is located on the board
         @param color: color of piece (chess.WHITE or chess.BLACK)
+        @param board: board state
         @return: heuristic value of piece at the given square
         """
-        # access heuristic values for piece type
-        table = self.material_heuristics[piece_type]
-        if color == chess.BLACK:
-            table = list(reversed(table))  # Reverse the table for black pieces to match the board orientation.
-        return table[square]
-
-    def get_piece_key(self, piece_type, is_endgame):
-        """
-        Determines the appropriate key to use for the material heuristics based on the piece type and game phase.
-
-        @param piece_type:type of the chess piece
-        @param is_endgame: Boolean indicating if in endgame phase
-        @return: string key corresponding to piece type and game phase for accessing heuristics.
-        """
-        if piece_type == chess.PAWN:
-            return 'pawnsEnd' if is_endgame else 'pawns'
-        elif piece_type == chess.KING:
-            return 'kingEnd' if is_endgame else 'kingStart'
+        endGame = endgame_check(board)
+        piece_key = ''
+        if piece_type == chess.KING:
+            piece_key = 'kingStart' if not endGame else 'kingEnd'
+        elif piece_type == chess.PAWN:
+            piece_key = 'pawns' if not endGame else 'pawnsEnd'
+        elif piece_type == chess.ROOK:
+            piece_key = 'rooks'
+        elif piece_type == chess.KNIGHT:
+            piece_key = 'knights'
+        elif piece_type == chess.BISHOP:
+            piece_key = 'bishops'
         else:
-            # map other piece types to respective keys
-            return {
-                chess.KNIGHT: 'knights',
-                chess.BISHOP: 'bishops',
-                chess.ROOK: 'rooks',
-                chess.QUEEN: 'queen'
-            }[piece_type]
+            piece_key = 'queen'
+
+        table = materialHeuristics[piece_key]
+        if color == chess.BLACK:
+            table = list(reversed(table))  # Reverse table for black pieces
+        return table[square]
 
     def minimax(self, board, depth, alpha, beta, maximizing_player):
         """
