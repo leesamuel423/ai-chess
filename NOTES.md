@@ -48,3 +48,30 @@ considerations:
 - [x] Look into alpha-beta pruning algorithm
 - [x] Create Board heuristics
 
+## Test Positions
+- [ ] Checkmate Position
+    - Play as Black
+    - FEN: r1bqkb1r/pppppppp/8/1n6/1n6/1B2PQ2/PPPP1PPP/R1B1K1NR w KQkq - 0 7
+    - Expected Behavior: Queen Takes and Checkmate OR Bishop Takes and Checkmate
+
+- [ ] Optimal take (SEE implementation)
+    - Play as White
+    - FEN: r1b1kb1r/pppp1ppp/2n1pq2/8/4P3/3P1Q2/PPP2PPP/RN2KBNR b KQkq - 1 5
+    - Expected Behavior: Queen takes free pawn rook side and threatens rook take
+
+- [ ] Queen Valuation
+    - Play as White
+    - FEN: rnb1kbnr/pppp1ppp/8/4p3/4PP1q/6P1/PPPP3P/RNBQKBNR b KQkq - 0 3
+    - Expected Behavior: Prioritize protecting queen
+
+- [ ] Rook Shuffle
+    - Play as White
+    - FEN: r6r/pppk1ppp/4p3/3b4/1PP1N2q/5P2/5NPP/R2QR1K1 b - - 0 19
+    - FEN: 3rkb1r/ppp1pppp/8/3P4/1PP5/P2N1PP1/7P/R3R1K1 b - - 0 21
+    - Expected Behavior: Anything useful, why rook shuffle?
+
+- [ ] King Endgame Play
+    - Play as White
+    - FEN:  r3kb1r/ppp1pppp/2p5/8/1PbPP2q/P4P2/2P2NPP/RN1QR1K1 b kq - 7 13
+r3kb1r/ppp1pppp/2p5/8/1PbPP2q/P4P2/2P2NPP/RN1QR1K1 b kq - 7 13
+    - Expected Behavior: Maybe castling? Why is King moving forward as if endgame condition has been met?
