@@ -22,7 +22,7 @@ class ChessAI:
         @return: numerical evaluation of board's state from the perspective of the AI's color. (+) favorable, (-) unfavorable
         """
         if board.is_checkmate():
-            return -9999 if board.turn else 9999
+            return 9999 if not board.turn == self.color else -9999
         if board.is_stalemate():
             return 0
         if board.is_insufficient_material():
