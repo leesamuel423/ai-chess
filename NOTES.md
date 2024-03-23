@@ -31,22 +31,16 @@ considerations:
 - [Killer Heuristic](https://en.wikipedia.org/wiki/Killer_heuristic) for alpha-beta pruning efficiency
 
 ## TODO
-- [x] Load/Display gui
-- [x] Load positions with FEN
-- [x] Set orientations
-- [x] Move QApplication code to display as well???
-- [x] user interaction with gui to move pieces
-- [x] FIX:when orientation flipped for black, user input does not also reverse
-- [x] user move validation
-- [x] indicators to show valid moves
-    - [x] check whether indicators show edge cases (EnPassant, Castle, Promotion)
-- [x] Address pawn promotion
-- [x] check to see if game ends and show who won
-- [x] show whose turn it is
-- [x] show FEN
+- conversion into UCI (https://github.com/thomasahle/sunfish)
+- bratko-kopec testing (https://www.chessprogramming.org/Bratko-Kopec_Test)
+- implementation of Pesto Eval func w/ Tapered Eval
+- organize move ordering for better alpha-beta pruning
+- multiprocessing?
 
-- [x] Look into alpha-beta pruning algorithm
-- [x] Create Board heuristics
+- host on lichess
+
+- add openings w/ Cerebellum
+- add endgame syzygy
 
 ## Test Positions
 - [ ] Checkmate Position
