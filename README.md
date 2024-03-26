@@ -3,7 +3,7 @@
 Chess AI utilizing minmax algorithm with alpha-beta pruning (fail-soft), enhanced with heuristics for piece valuation and positional play. Developed with PyQt6 for graphical user interface.
 
 <p align="center">
-  <img src="./static/sample.gif" width="800px"/>
+  <img src="./static/ai.gif" width="800px"/>
 </p>
 
 ## Heuristics:
