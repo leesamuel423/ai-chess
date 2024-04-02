@@ -1,5 +1,5 @@
 import chess
-from heuristics.heuristics_v1 import *
+from heuristics.heuristicsv1 import *
 
 class ChessAI:
 

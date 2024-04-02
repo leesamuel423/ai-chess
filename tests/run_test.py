@@ -25,14 +25,12 @@ class TestChess():
         print(f".... Testing {suite} ....")
         tests = self.process_file(file)
         ai = ChessAI()
-        print(tests)
 
         correct = 0
         start_time = time.monotonic()
 
         for i, (fen, best_moves) in enumerate(tests):
             board = chess.Board(fen)
-            print(board.fen)
             result = ai.select_best_move(board)
             if result in best_moves:
                 correct += 1

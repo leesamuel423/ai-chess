@@ -1,5 +1,6 @@
 import chess
 
+
 # Material heuristics for pieces from White perspective
 # Values used to evaluate position of pieces on board
 materialHeuristics = {
